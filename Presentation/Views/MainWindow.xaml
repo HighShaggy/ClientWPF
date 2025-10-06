@@ -1,0 +1,236 @@
+﻿<Window x:Class="ClientWpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Клиенты и заявки" Height="600" Width="1000"
+        Background="#F8F9FB">
+
+    <Window.Resources>
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#0078D7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#0A84FF"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#005A9E"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E0E0E0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush" Value="#DDD"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#EEE"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="5,4"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="BorderBrush" Value="#CCC"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="5">
+        <TabControl Background="White" BorderBrush="#DDD" BorderThickness="1" Padding="5">
+
+            <!-- Вкладка 1: Клиенты и заявки -->
+            <TabItem Header="Клиенты">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="150"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,5">
+                        <Button Content="Добавить клиента" Style="{StaticResource PrimaryButton}" Command="{Binding ClientsVM.AddClientCommand}"/>
+                    </StackPanel>
+
+                    <!-- Таблица клиентов -->
+                    <DataGrid Grid.Row="1" Grid.Column="0"
+                              ItemsSource="{Binding ClientsVM.ClientsView}"
+                              SelectedItem="{Binding ClientsVM.SelectedClient, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              CanUserSortColumns="True"
+                              Margin="0,0,5,1"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Vertical"
+                              RowBackground="White"
+                              AlternatingRowBackground="#F5F5F5"
+                              CellStyle="{StaticResource DataGridCellStyle}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Наименование" Binding="{Binding Name, Mode=OneWay}" Width="120"/>
+                            <DataGridTextColumn Header="ИНН" Binding="{Binding Inn, Mode=OneWay}" Width="*"/>
+                            <DataGridTextColumn Header="Сфера деятельности" Binding="{Binding BusinessAreaName, Mode=OneWay}" Width="150"/>
+                            <DataGridTextColumn Header="Кол-во заявок" Binding="{Binding RequestsCount, Mode=OneWay}" Width="100"/>
+                            <DataGridTextColumn Header="Дата последней заявки" Binding="{Binding LastRequestDate, Mode=OneWay, StringFormat={}{0:dd.MM.yyyy}}" Width="120"/>
+                            <DataGridTemplateColumn Header="Действия" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Style="{StaticResource IconButton}"
+                                                    Command="{Binding DataContext.ClientsVM.EditClientCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="✏" FontSize="13"/>
+                                            </Button>
+                                            <Button Style="{StaticResource IconButton}"
+                                                    Command="{Binding DataContext.ClientsVM.DeleteClientCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="🗑" FontSize="13"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Таблица заявок выбранного клиента -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,5">
+                            <Button Content="Добавить заявку" Style="{StaticResource PrimaryButton}" Width="140" Command="{Binding RequestsVM.AddRequestCommand}"/>
+                        </StackPanel>
+
+                        <DataGrid ItemsSource="{Binding RequestsVM.RequestsForSelectedClient}"
+                                  AutoGenerateColumns="False"
+                                  CanUserSortColumns="True"
+                                  SelectedItem="{Binding RequestsVM.SelectedRequest, Mode=TwoWay}"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="Vertical"
+                                  RowBackground="White"
+                                  AlternatingRowBackground="#F5F5F5"
+                                  CellStyle="{StaticResource DataGridCellStyle}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Дата" Binding="{Binding RequestDate, StringFormat={}{0:dd.MM.yyyy}}" Width="80"/>
+                                <DataGridTextColumn Header="Работы" Binding="{Binding WorkName}" Width="80"/>
+                                <DataGridTextColumn Header="Описание" Binding="{Binding WorkDescription}" Width="80"/>
+                                <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="80"/>
+                                <DataGridTemplateColumn Header="Удалить" Width="70">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Style="{StaticResource IconButton}"
+                                                    Command="{Binding DataContext.RequestsVM.DeleteRequestCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="🗑" FontSize="13"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+
+                    <!-- Нижний блок примечаний -->
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" Background="#FFF" BorderBrush="#DDD" BorderThickness="1" CornerRadius="6" Margin="0,5,0,0" Padding="10">
+                        <StackPanel>
+                            <TextBlock Text="Примечание:" FontWeight="Bold" FontSize="14" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding ClientsVM.ClientNote}" TextWrapping="Wrap" FontSize="13"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Вкладка 2: Все заявки -->
+            <TabItem Header="Заявки">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,5">
+                        <TextBlock Text="Клиент:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <ComboBox Width="200"
+                                  ItemsSource="{Binding AllRequestsVM.Clients}"
+                                  DisplayMemberPath="Name"
+                                  SelectedItem="{Binding AllRequestsVM.SelectedClient, Mode=TwoWay}"
+                                  SelectedIndex="-1"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding AllRequestsVM.RequestsView}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              IsReadOnly="False"
+                              AlternatingRowBackground="#F5F5F5"
+                              RowBackground="White"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Vertical"
+                              CellStyle="{StaticResource DataGridCellStyle}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Дата" Binding="{Binding RequestDate, StringFormat={}{0:dd.MM.yyyy}}" Width="120"/>
+                            <DataGridTextColumn Header="Клиент" Binding="{Binding Model.Client.Name, Mode=OneWay}" Width="200"/>
+                            <DataGridTextColumn Header="Работы" Binding="{Binding WorkName, Mode=OneWay}" Width="*"/>
+                            <DataGridTextColumn Header="Описание" Binding="{Binding WorkDescription, Mode=OneWay}" Width="*"/>
+                            <DataGridTemplateColumn Header="Статус" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Cursor="Hand">
+                                            <TextBlock Text="{Binding StatusName}" VerticalAlignment="Center"/>
+                                            <TextBlock Text=" ▼" Foreground="Gray" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Statuses}"
+                                                  SelectedItem="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  DisplayMemberPath="Name"
+                                                  IsDropDownOpen="True"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+    </Grid>
+</Window>
