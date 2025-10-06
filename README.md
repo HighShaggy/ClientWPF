@@ -1,6 +1,6 @@
 # ClientWpf
 
-**ClientWpf** — WPF-приложение на C# для управления клиентами и заявками. Использует MVVM и Entity Framework Core.
+WPF-приложение на C# для управления клиентами и заявками. Использует MVVM, Entity Framework Core и PostgreSQL.
 
 ---
 
