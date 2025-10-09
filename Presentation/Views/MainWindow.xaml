@@ -137,25 +137,64 @@
                         </StackPanel>
 
                         <DataGrid ItemsSource="{Binding RequestsVM.RequestsForSelectedClient}"
-                                  AutoGenerateColumns="False"
-                                  CanUserSortColumns="True"
-                                  SelectedItem="{Binding RequestsVM.SelectedRequest, Mode=TwoWay}"
-                                  HeadersVisibility="Column"
-                                  GridLinesVisibility="Vertical"
-                                  RowBackground="White"
-                                  AlternatingRowBackground="#F5F5F5"
-                                  CellStyle="{StaticResource DataGridCellStyle}">
+          AutoGenerateColumns="False"
+          CanUserSortColumns="True"
+          SelectedItem="{Binding RequestsVM.SelectedRequest, Mode=TwoWay}"
+          HeadersVisibility="Column"
+          GridLinesVisibility="Vertical"
+          RowBackground="White"
+          AlternatingRowBackground="#F5F5F5"
+          CellStyle="{StaticResource DataGridCellStyle}">
+
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Дата" Binding="{Binding RequestDate, StringFormat={}{0:dd.MM.yyyy}}" Width="Auto"/>
-                                <DataGridTextColumn Header="Работы" Binding="{Binding WorkName}" Width="*"/>
-                                <DataGridTextColumn Header="Описание" Binding="{Binding WorkDescription}" Width="2*"/>
-                                <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="Auto"/>
-                                <DataGridTemplateColumn Header="Удалить" Width="Auto">
+                                <!-- Дата -->
+                                <DataGridTextColumn Header="Дата"
+                            Binding="{Binding RequestDate, StringFormat={}{0:dd.MM.yyyy}}"
+                            Width="Auto" />
+
+                                <!-- Работы -->
+                                <DataGridTextColumn Header="Работы"
+                            Binding="{Binding WorkName}"
+                            Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                            <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Описание -->
+                                <DataGridTextColumn Header="Описание"
+                            Binding="{Binding WorkDescription}"
+                            Width="2*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                            <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Статус -->
+                                <DataGridTextColumn Header="Статус"
+                            Binding="{Binding StatusName}"
+                            Width="Auto">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <!-- Удалить -->
+                                <DataGridTemplateColumn Header="🗑" Width="40">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Style="{StaticResource IconButton}"
-                                                    Command="{Binding DataContext.RequestsVM.DeleteRequestCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    CommandParameter="{Binding}">
+                            Width="22" Height="22"
+                            Command="{Binding DataContext.RequestsVM.DeleteRequestCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{Binding}">
                                                 <TextBlock Text="🗑" FontSize="13"/>
                                             </Button>
                                         </DataTemplate>
