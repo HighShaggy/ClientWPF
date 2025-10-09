@@ -9,11 +9,6 @@ namespace ClientWpf
         public MainWindow()
         {
             InitializeComponent();
-            var requestService = new RequestService();
-            var vm = new AllRequestsVM(requestService);
-            DataContext = vm;
-
-            this.Loaded += async (_, __) => await vm.LoadAllAsync();
         }
 
         private void ComboBox_Loaded(object sender, RoutedEventArgs e)

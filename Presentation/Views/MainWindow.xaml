@@ -146,11 +146,11 @@
                                   AlternatingRowBackground="#F5F5F5"
                                   CellStyle="{StaticResource DataGridCellStyle}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Дата" Binding="{Binding RequestDate, StringFormat={}{0:dd.MM.yyyy}}" Width="80"/>
-                                <DataGridTextColumn Header="Работы" Binding="{Binding WorkName}" Width="80"/>
-                                <DataGridTextColumn Header="Описание" Binding="{Binding WorkDescription}" Width="80"/>
-                                <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="80"/>
-                                <DataGridTemplateColumn Header="Удалить" Width="70">
+                                <DataGridTextColumn Header="Дата" Binding="{Binding RequestDate, StringFormat={}{0:dd.MM.yyyy}}" Width="Auto"/>
+                                <DataGridTextColumn Header="Работы" Binding="{Binding WorkName}" Width="*"/>
+                                <DataGridTextColumn Header="Описание" Binding="{Binding WorkDescription}" Width="2*"/>
+                                <DataGridTextColumn Header="Статус" Binding="{Binding StatusName}" Width="Auto"/>
+                                <DataGridTemplateColumn Header="Удалить" Width="Auto">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Style="{StaticResource IconButton}"
