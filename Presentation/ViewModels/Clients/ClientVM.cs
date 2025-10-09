@@ -5,11 +5,11 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 
-public class ClientViewModel : INotifyPropertyChanged
+public class ClientVM : INotifyPropertyChanged
 {
     public Client Model { get; }
 
-    public ClientViewModel(Client client)
+    public ClientVM(Client client)
     {
         Model = client ?? throw new ArgumentNullException(nameof(client));
 

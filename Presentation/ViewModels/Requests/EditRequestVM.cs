@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-public class EditRequestViewModel : INotifyPropertyChanged
+public class EditRequestVM : INotifyPropertyChanged
 {
     /// <summary>
     /// ViewModel для всплывающего окна добавления или редактирования заявки.
@@ -35,7 +35,7 @@ public class EditRequestViewModel : INotifyPropertyChanged
     public ICommand SaveCommand { get; }
     public ICommand CancelCommand { get; }
 
-    public EditRequestViewModel(ObservableCollection<RequestStatus> statuses)
+    public EditRequestVM(ObservableCollection<RequestStatus> statuses)
     {
         Statuses = statuses ?? new ObservableCollection<RequestStatus>();
         if (Statuses.Count > 0)

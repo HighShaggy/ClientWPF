@@ -1,5 +1,6 @@
 ﻿using ClientWpf.Models;
 using ClientWpf.Services;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -13,18 +14,17 @@ public class AllRequestsVM : INotifyPropertyChanged
     /// ViewModel для второй вкладки — «Все заявки».
     /// Управляет списком всех заявок, их статусами и фильтрацией по клиенту.
     /// </summary>
-    private readonly RequestService _requestService;
+    private readonly IRequestService _requestService;
+    private readonly IClientService _clientService;
 
-    private ObservableCollection<RequestViewModel> _allRequests = new ObservableCollection<RequestViewModel>();
+    private readonly ObservableCollection<RequestVM> _allRequests = new ObservableCollection<RequestVM>();
 
-    public ObservableCollection<RequestViewModel> Requests { get; } = new ObservableCollection<RequestViewModel>();
-
+    public ObservableCollection<RequestVM> Requests { get; } = new ObservableCollection<RequestVM>();
     public ObservableCollection<Client> Clients { get; } = new ObservableCollection<Client>();
 
     public ICollectionView RequestsView { get; }
 
     private Client _selectedClient;
-
     public Client SelectedClient
     {
         get => _selectedClient;
@@ -37,12 +37,18 @@ public class AllRequestsVM : INotifyPropertyChanged
         }
     }
 
-    public AllRequestsVM(RequestService requestService)
+    public AllRequestsVM(IRequestService requestService, IClientService clientService)
     {
         _requestService = requestService;
+        _clientService = clientService;
+
+        // Подписываемся на событие изменения заявок
+        _requestService.RequestsChanged += async () => await LoadAllAsync();
+        _clientService.ClientsChanged += OnClientsChanged;
 
         RequestsView = CollectionViewSource.GetDefaultView(Requests);
-        RequestsView.SortDescriptions.Add(new SortDescription(nameof(RequestViewModel.RequestDate), ListSortDirection.Descending));
+        RequestsView.SortDescriptions.Add(
+            new SortDescription(nameof(RequestVM.RequestDate), ListSortDirection.Descending));
 
         _ = LoadAllAsync();
     }
@@ -63,14 +69,14 @@ public class AllRequestsVM : INotifyPropertyChanged
                 if (r.Status == null && r.StatusId != 0)
                     r.Status = statuses.FirstOrDefault(s => s.Id == r.StatusId);
 
-                var vm = new RequestViewModel(r)
+                var vm = new RequestVM(r)
                 {
                     Statuses = new ObservableCollection<RequestStatus>(statuses)
                 };
 
                 vm.PropertyChanged += async (s, e) =>
                 {
-                    if (e.PropertyName == nameof(RequestViewModel.Status))
+                    if (e.PropertyName == nameof(RequestVM.Status))
                     {
                         vm.Model.StatusId = vm.Status?.Id ?? 0;
                         await _requestService.UpdateAsync(vm.Model);
@@ -97,14 +103,14 @@ public class AllRequestsVM : INotifyPropertyChanged
         if (request.Status == null && request.StatusId != 0)
             request.Status = statuses.FirstOrDefault(s => s.Id == request.StatusId);
 
-        var vm = new RequestViewModel(request)
+        var vm = new RequestVM(request)
         {
             Statuses = new ObservableCollection<RequestStatus>(statuses)
         };
 
         vm.PropertyChanged += async (s, e) =>
         {
-            if (e.PropertyName == nameof(RequestViewModel.Status))
+            if (e.PropertyName == nameof(RequestVM.Status))
             {
                 vm.Model.StatusId = vm.Status?.Id ?? 0;
                 await _requestService.UpdateAsync(vm.Model);
@@ -124,10 +130,21 @@ public class AllRequestsVM : INotifyPropertyChanged
 
         var filtered = _selectedClient == null
             ? _allRequests
-            : new ObservableCollection<RequestViewModel>(_allRequests.Where(r => r.Model.ClientId == _selectedClient.Id));
+            : new ObservableCollection<RequestVM>(
+                _allRequests.Where(r => r.Model.ClientId == _selectedClient.Id));
 
         foreach (var r in filtered.OrderByDescending(r => r.RequestDate))
             Requests.Add(r);
+    }
+    private async void OnClientsChanged()
+    {
+        var allClients = await _clientService.GetAllAsync();
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            Clients.Clear();
+            foreach (var c in allClients)
+                Clients.Add(c);
+        });
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

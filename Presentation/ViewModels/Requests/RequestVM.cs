@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 
-public class RequestViewModel : INotifyPropertyChanged
+public class RequestVM : INotifyPropertyChanged
 {
     public Request Model { get; }
 
@@ -43,7 +43,7 @@ public class RequestViewModel : INotifyPropertyChanged
     public ICommand EditCommand { get; set; }
     public ICommand DeleteCommand { get; set; }
 
-    public RequestViewModel(Request model)
+    public RequestVM(Request model)
     {
         Model = model ?? throw new ArgumentNullException(nameof(model));
         _status = model.Status;

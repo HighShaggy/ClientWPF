@@ -13,20 +13,25 @@ public class RequestsVM
     /// ViewModel для первой вкладки — заявок выбранного клиента.
     /// Обновляет счётчики и даты последней заявки у клиента.
     /// </summary>
-    private readonly RequestService _requestService;
+    private readonly IRequestService _requestService;
     private readonly ClientsVM _clientsVM;
     private readonly AllRequestsVM _allRequestsVM;
 
-    public ObservableCollection<RequestViewModel> RequestsForSelectedClient { get; } = new ObservableCollection<RequestViewModel>();
+    public ObservableCollection<RequestVM> RequestsForSelectedClient { get; private set; }
 
-    public ICommand AddRequestCommand => new RelayCommand(async () => await AddRequestAsync());
-    public ICommand DeleteRequestCommand => new RelayCommand<RequestViewModel>(async r => await DeleteRequestAsync(r));
+    public ICommand AddRequestCommand { get; private set; }
+    public ICommand DeleteRequestCommand { get; private set; }
 
-    public RequestsVM(RequestService requestService, ClientsVM clientsVM, AllRequestsVM allRequestsVM)
+    public RequestsVM(IRequestService requestService, ClientsVM clientsVM, AllRequestsVM allRequestsVM)
     {
         _requestService = requestService;
         _clientsVM = clientsVM;
         _allRequestsVM = allRequestsVM;
+
+        RequestsForSelectedClient = new ObservableCollection<RequestVM>();
+
+        AddRequestCommand = new RelayCommand(async () => await AddRequestAsync());
+        DeleteRequestCommand = new RelayCommand<RequestVM>(async r => await DeleteRequestAsync(r));
 
         _clientsVM.PropertyChanged += (s, e) =>
         {
@@ -38,22 +43,29 @@ public class RequestsVM
     private void RefreshRequestsForSelectedClient()
     {
         RequestsForSelectedClient.Clear();
+
         var selected = _clientsVM.SelectedClient;
-        if (selected == null) return;
+        if (selected == null)
+            return;
 
         foreach (var r in selected.Model.Requests.OrderByDescending(x => x.RequestDate))
-            RequestsForSelectedClient.Add(new RequestViewModel(r));
+        {
+            RequestsForSelectedClient.Add(new RequestVM(r));
+        }
     }
 
     private async Task AddRequestAsync()
     {
         var selected = _clientsVM.SelectedClient;
-        if (selected == null) return;
+        if (selected == null)
+            return;
 
         var statuses = new ObservableCollection<RequestStatus>(await _requestService.GetStatusesAsync());
-        var vm = new EditRequestViewModel(statuses);
+        var vm = new EditRequestVM(statuses);
         var window = new EditRequestWindow { DataContext = vm };
-        if (window.ShowDialog() != true) return;
+
+        if (window.ShowDialog() != true)
+            return;
 
         var request = new Request
         {
@@ -61,7 +73,7 @@ public class RequestsVM
             RequestDate = vm.RequestDate,
             WorkName = vm.WorkName,
             WorkDescription = vm.WorkDescription,
-            StatusId = vm.SelectedStatus?.Id ?? 0
+            StatusId = vm.SelectedStatus != null ? vm.SelectedStatus.Id : 0
         };
 
         await _requestService.AddAsync(request);
@@ -69,18 +81,21 @@ public class RequestsVM
 
         selected.Model.Requests.Add(request);
         RefreshRequestsForSelectedClient();
-        selected.OnPropertyChanged(nameof(ClientViewModel.RequestsCount));
+        selected.OnPropertyChanged(nameof(ClientVM.RequestsCount));
     }
 
-    private async Task DeleteRequestAsync(RequestViewModel requestVM)
+    private async Task DeleteRequestAsync(RequestVM requestVM)
     {
         var selected = _clientsVM.SelectedClient;
-        if (requestVM == null || selected == null) return;
+        if (requestVM == null || selected == null)
+            return;
 
         await _requestService.DeleteAsync(requestVM.Model);
+
         selected.Model.Requests.Remove(requestVM.Model);
         RefreshRequestsForSelectedClient();
-        selected.OnPropertyChanged(nameof(ClientViewModel.RequestsCount));
-        selected.OnPropertyChanged(nameof(ClientViewModel.LastRequestDate));
+
+        selected.OnPropertyChanged(nameof(ClientVM.RequestsCount));
+        selected.OnPropertyChanged(nameof(ClientVM.LastRequestDate));
     }
 }

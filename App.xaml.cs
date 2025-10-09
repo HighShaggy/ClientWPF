@@ -10,12 +10,12 @@ namespace ClientWpf
         {
             base.OnStartup(e);
 
-            var db = new AppDbContext(); // берёт строку из App.config
-            var clientService = new ClientService(db);
-            var requestService = new RequestService();
-            var allRequestsVM = new AllRequestsVM(requestService);
+            var db = new AppDbContext();
+            IClientService clientService = new ClientService(db);
+            IRequestService requestService = new RequestService();
 
-            var mainViewModel = new MainViewModel(clientService, requestService, allRequestsVM);
+            var allRequestsVM = new AllRequestsVM(requestService,clientService);
+            var mainViewModel = new MainVM(clientService, requestService, allRequestsVM);
 
             var mainWindow = new MainWindow
             {
@@ -23,6 +23,7 @@ namespace ClientWpf
             };
             MainWindow = mainWindow;
             mainWindow.Show();
+            _ = mainViewModel.ClientsVM.LoadClientsAsync();
         }
     }
 }

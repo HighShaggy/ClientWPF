@@ -15,24 +15,25 @@ public class ClientsVM : INotifyPropertyChanged
     /// ViewModel для основного окна работы с клиентами.
     /// Отвечает за загрузку, отображение и управление списком клиентов
     /// </summary>
-    private readonly ClientService _clientService;
+    private readonly IClientService _clientService;
 
-    private ClientViewModel _selectedClient;
+    private ClientVM _selectedClient;
 
     public ICollectionView ClientsView { get; }
     public string ClientNote => SelectedClient?.Note;
 
-    public ObservableCollection<ClientViewModel> Clients { get; } = new ObservableCollection<ClientViewModel>();
+    public ObservableCollection<ClientVM> Clients { get; } = new ObservableCollection<ClientVM>();
 
-    public ClientsVM(ClientService clientService)
+    public ClientsVM(IClientService clientService)
     {
         _clientService = clientService;
-        _ = LoadClientsAsync();
+        _clientService.ClientsChanged += async () => await LoadClientsAsync();
+
         ClientsView = CollectionViewSource.GetDefaultView(Clients);
-        ClientsView.SortDescriptions.Add(new SortDescription(nameof(ClientViewModel.Name), ListSortDirection.Ascending));
+        ClientsView.SortDescriptions.Add(new SortDescription(nameof(ClientVM.Name), ListSortDirection.Ascending));
     }
 
-    public ClientViewModel SelectedClient
+    public ClientVM SelectedClient
     {
         get => _selectedClient;
         set
@@ -51,33 +52,35 @@ public class ClientsVM : INotifyPropertyChanged
         foreach (var c in clients)
         {
             c.Requests = new ObservableCollection<Request>(c.Requests);
-            Clients.Add(new ClientViewModel(c));
+            Clients.Add(new ClientVM(c));
         }
     }
 
     public ICommand AddClientCommand => new RelayCommand(async () => await AddClientAsync());
-    public ICommand EditClientCommand => new RelayCommand<ClientViewModel>(async c => await EditClientAsync(c), c => c != null);
-    public ICommand DeleteClientCommand => new RelayCommand<ClientViewModel>(async c => await DeleteClientAsync(c), c => c != null);
+    public ICommand EditClientCommand => new RelayCommand<ClientVM>(async c => await EditClientAsync(c), c => c != null);
+    public ICommand DeleteClientCommand => new RelayCommand<ClientVM>(async c => await DeleteClientAsync(c), c => c != null);
 
     private async Task AddClientAsync()
     {
         var client = new Client();
-        var vm = new EditClientViewModel(client, await _clientService.GetBusinessAreasAsync());
+        var vm = new EditClientVM(client, await _clientService.GetBusinessAreasAsync());
         var window = new EditClientWindow { DataContext = vm };
         if (window.ShowDialog() == true)
         {
             var selectedArea = vm.BusinessAreas.FirstOrDefault(b => b.Id == client.BusinessAreaId);
             client.BusinessArea = selectedArea;
+
             await _clientService.AddAsync(client);
-            var clientVM = new ClientViewModel(client);
-            Clients.Add(clientVM);
+
+            Clients.Add(new ClientVM(client));
         }
     }
 
-    private async Task EditClientAsync(ClientViewModel client)
+    private async Task EditClientAsync(ClientVM client)
     {
         if (client == null) return;
-        var vm = new EditClientViewModel(client.Model, await _clientService.GetBusinessAreasAsync());
+
+        var vm = new EditClientVM(client.Model, await _clientService.GetBusinessAreasAsync());
         var window = new EditClientWindow { DataContext = vm };
         if (window.ShowDialog() == true)
         {
@@ -86,9 +89,10 @@ public class ClientsVM : INotifyPropertyChanged
         }
     }
 
-    private async Task DeleteClientAsync(ClientViewModel client)
+    private async Task DeleteClientAsync(ClientVM client)
     {
         if (client == null) return;
+
         await _clientService.DeleteAsync(client.Model);
         Clients.Remove(client);
     }

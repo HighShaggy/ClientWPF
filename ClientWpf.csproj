@@ -159,15 +159,17 @@
     </ApplicationDefinition>
     <Compile Include="Core\Commands\RelayCommand.cs" />
     <Compile Include="Services\ClientService.cs" />
+    <Compile Include="Services\IClientService.cs" />
+    <Compile Include="Services\IRequestService.cs" />
     <Compile Include="Services\RequestService.cs" />
     <Compile Include="Presentation\ViewModels\Requests\AllRequestsVM.cs" />
     <Compile Include="Presentation\ViewModels\Clients\ClientsVM.cs" />
-    <Compile Include="Presentation\ViewModels\Clients\ClientViewModel.cs" />
-    <Compile Include="Presentation\ViewModels\Clients\EditClientViewModel.cs" />
-    <Compile Include="Presentation\ViewModels\Requests\EditRequestViewModel.cs" />
-    <Compile Include="Presentation\ViewModels\MainViewModel.cs" />
+    <Compile Include="Presentation\ViewModels\Clients\ClientVM.cs" />
+    <Compile Include="Presentation\ViewModels\Clients\EditClientVM.cs" />
+    <Compile Include="Presentation\ViewModels\Requests\EditRequestVM.cs" />
+    <Compile Include="Presentation\ViewModels\MainVM.cs" />
     <Compile Include="Presentation\ViewModels\Requests\RequestsVM.cs" />
-    <Compile Include="Presentation\ViewModels\Requests\RequestViewModel.cs" />
+    <Compile Include="Presentation\ViewModels\Requests\RequestVM.cs" />
     <Page Include="Presentation\Views\EditClientWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

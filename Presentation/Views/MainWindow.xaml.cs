@@ -1,5 +1,4 @@
-﻿using ClientWpf.Services;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace ClientWpf

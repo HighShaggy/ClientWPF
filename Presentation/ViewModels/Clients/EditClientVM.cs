@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-public class EditClientViewModel : INotifyPropertyChanged
+public class EditClientVM : INotifyPropertyChanged
 {
     /// <summary>
     /// ViewModel для отдельного окна CRUD клиента
@@ -67,7 +67,7 @@ public class EditClientViewModel : INotifyPropertyChanged
         }
     }
 
-    public EditClientViewModel(Client client, IEnumerable<BusinessArea> businessAreas)
+    public EditClientVM(Client client, IEnumerable<BusinessArea> businessAreas)
     {
         Model = client ?? throw new System.ArgumentNullException(nameof(client));
         BusinessAreas = new ObservableCollection<BusinessArea>(businessAreas ?? new List<BusinessArea>());

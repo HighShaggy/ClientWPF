@@ -1,6 +1,7 @@
 ﻿using ClientWpf.Data;
 using ClientWpf.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -8,14 +9,10 @@ using System.Threading.Tasks;
 
 namespace ClientWpf.Services
 {
-    public class RequestService
+    public class RequestService : IRequestService
     {
-        /// <summary>
-        /// Выполняет CRUD-операции и загрузку связанных данных (клиентов и статусов).
-        /// Для каждой операции создаёт новый экземпляр <see cref="AppDbContext"/>,
-        /// чтобы избежать ошибок при многопоточном доступе к контексту Entity Framework.
-        /// </summary>
         private readonly DbContextOptions<AppDbContext> _options;
+        public event Action RequestsChanged;
 
         public RequestService()
         {
@@ -51,6 +48,8 @@ namespace ClientWpf.Services
                 await db.Requests.AddAsync(request);
                 await db.SaveChangesAsync();
             }
+
+            RequestsChanged?.Invoke();
         }
 
         public async Task UpdateAsync(Request request)
@@ -62,16 +61,16 @@ namespace ClientWpf.Services
 
                 db.Requests.Attach(request);
                 db.Entry(request).Property(r => r.StatusId).IsModified = true;
-
                 await db.SaveChangesAsync();
             }
+
+            RequestsChanged?.Invoke();
         }
 
         public async Task DeleteAsync(Request request)
         {
             using (var db = CreateContext())
             {
-                // Подтягиваем сущность из БД, чтобы EF знал, что это tracked
                 var entity = await db.Requests.FindAsync(request.Id);
                 if (entity != null)
                 {
@@ -79,6 +78,8 @@ namespace ClientWpf.Services
                     await db.SaveChangesAsync();
                 }
             }
+
+            RequestsChanged?.Invoke();
         }
 
         public async Task<List<Request>> GetAllAsync()

@@ -10,7 +10,7 @@ namespace ClientWpf.Views
         }
         private void Ok_Click(object sender, RoutedEventArgs e)
         {
-            var vm = DataContext as EditClientViewModel;
+            var vm = DataContext as EditClientVM;
             if (string.IsNullOrWhiteSpace(vm?.Name) || string.IsNullOrWhiteSpace(vm.Inn) || vm.SelectedBusinessArea == null)
             {
                 MessageBox.Show("Заполните все обязательные поля и выберите сферу деятельности", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);

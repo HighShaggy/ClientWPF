@@ -1,6 +1,6 @@
 ﻿using ClientWpf.Services;
 
-public class MainViewModel
+public class MainVM
 {
     public ClientsVM ClientsVM { get; }
 
@@ -8,12 +8,10 @@ public class MainViewModel
 
     public AllRequestsVM AllRequestsVM { get; }
 
-    public MainViewModel(ClientService clientService, RequestService requestService, AllRequestsVM allRequestsVM)
+    public MainVM(IClientService clientService, IRequestService requestService, AllRequestsVM allRequestsVM)
     {
         ClientsVM = new ClientsVM(clientService);
-
+        AllRequestsVM = allRequestsVM;
         RequestsVM = new RequestsVM(requestService, ClientsVM, allRequestsVM);
-
-        AllRequestsVM = new AllRequestsVM(requestService);
     }
 }
